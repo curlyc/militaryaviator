@@ -29,22 +29,22 @@ void loop() {
 
     // move the player back one space
     if (ab.pressed(LEFT_BUTTON) && (gamestate == 0) && (locx > 1)){
-    locx -= 1;
+    locx -= 10; //edited this to make the player move faster
   }
 
   // move player forward one space
   if (ab.pressed(RIGHT_BUTTON) && (gamestate == 0) && (locx < 100)){
-    locx += 1;
+    locx += 10; //dito edit
   }
 
   // move player up one space
     if (ab.pressed(UP_BUTTON) && (gamestate == 0) && (locy > 1)){
-    locy -= 1;
+    locy -= 10;
   }
 
   //move player down one space
   if (ab.pressed(DOWN_BUTTON) && (gamestate == 0) && (locy < 44)){
-    locy += 1;
+    locy += 10;
   }
 
   // print the players location
@@ -71,6 +71,11 @@ void loop() {
     ab.setCursor((bulx), (buly)); 
       ab.print("-");
       
+  }
+  // if bullet falls off the screen set it back to 0 
+  if (bulx > 128) {
+    bulx = 0;
+    buly = 0;
   }
     // move the players bullet forward 1 px untill it falls off the screen
     while ((bulx != elocy) && (gamestate == 0) && (bulx <= 128) && (bulx > 0)){
