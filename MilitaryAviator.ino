@@ -14,11 +14,14 @@ int enemyex = 1; //enemy exists (0 no 1 yes)
 int ehp = 0; //enemy hit points 
 int ebulx = 0; // enemy bullet x coord
 int ebuly = 0; //enemy bulley y coord
+unsigned long pbulm = 0; // when bulx changed last
+unsigned long cMillis = 0; // currant miliseconds
+const long interval = 10; // time between bullet movments
 void setup() {
   // put your setup code here, to run once:
 ab.begin();
   // massivley lowered framerate to test one of my theories
-ab.setFrameRate(1);
+ab.setFrameRate(30);
 ab.clear();
 }
 
@@ -26,25 +29,25 @@ void loop() {
   ab.clear();
  if (!(ab.nextFrame()))
     return;
-
+unsigned long cMillis = millis();  //current miliseconds
     // move the player back one space
     if (ab.pressed(LEFT_BUTTON) && (gamestate == 0) && (locx > 1)){
-    locx -= 10; //edited this to make the player move faster
+    locx -= 1; //edited this to make the player move faster
   }
 
   // move player forward one space
   if (ab.pressed(RIGHT_BUTTON) && (gamestate == 0) && (locx < 100)){
-    locx += 10; //dito edit
+    locx += 1; //dito edit
   }
 
   // move player up one space
     if (ab.pressed(UP_BUTTON) && (gamestate == 0) && (locy > 1)){
-    locy -= 10;
+    locy -= 1;
   }
 
   //move player down one space
   if (ab.pressed(DOWN_BUTTON) && (gamestate == 0) && (locy < 44)){
-    locy += 10;
+    locy += 1;
   }
 
   // print the players location
@@ -77,10 +80,10 @@ void loop() {
     bulx = 0;
     buly = 0;
   }
-    // move the players bullet forward 1 px untill it falls off the screen
-    while ((bulx != elocy) && (gamestate == 0) && (bulx <= 128) && (bulx > 0)){
+    // move the players bullet forward 1 px untill it falls off the screen if with a delay without a delay
+    while ((bulx != elocy) && (gamestate == 0) && (bulx <= 128) && (bulx > 0) && (cMillis - pbulm >= interval)){
       bulx += 1;
-      
+      pbulm = cMillis; //previous bullet move = current miliseconds
     ab.setCursor((bulx), (buly)); 
       ab.print("-");
       
