@@ -17,6 +17,7 @@ int ebuly = 0; //enemy bulley y coord
 void setup() {
   // put your setup code here, to run once:
 ab.begin();
+  // massivley lowered framerate to test one of my theories
 ab.setFrameRate(1);
 ab.clear();
 }
@@ -71,7 +72,13 @@ void loop() {
       ab.print("-");
       
   }
-
-  
+    // move the players bullet forward 1 px untill it falls off the screen
+    while ((bulx != elocy) && (gamestate == 0) && (bulx <= 128) && (bulx > 0)){
+      bulx += 1;
+      
+    ab.setCursor((bulx), (buly)); 
+      ab.print("-");
+      
+  }
 ab.display();
 }
