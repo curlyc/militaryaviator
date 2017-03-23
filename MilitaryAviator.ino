@@ -8,6 +8,7 @@ int bulx = 0; //player bullet location x
 int buly = 0; // player bullet location y
 int hp = 5; //current planes health
 int life = 0; // extra lives (planes)
+int killz = 0; // player kill count
 int elocx = 100; //enemy location x
 int elocy = 30; // enemy location y
 int enemyex = 1; //enemy exists (0 no 1 yes)
@@ -31,27 +32,64 @@ void loop() {
   ab.clear();
  if (!(ab.nextFrame()))
     return;
-    hp += ab.everyXFrames(20);
+    
 unsigned long cMillis = millis();  //current miliseconds
+    // gs 1
     // move the player back one space
-    if (ab.pressed(LEFT_BUTTON) && (gamestate == 0) && (locx > 1)){
+    if (ab.pressed(LEFT_BUTTON) && (gamestate == 1) && (locx > 1)){
     locx -= 1; //edited this to make the player move faster
   }
 
   // move player forward one space
-  if (ab.pressed(RIGHT_BUTTON) && (gamestate == 0) && (locx < 100)){
+  if (ab.pressed(RIGHT_BUTTON) && (gamestate == 1) && (locx < 100)){
     locx += 1; //dito edit
   }
 
   // move player up one space
-    if (ab.pressed(UP_BUTTON) && (gamestate == 0) && (locy > 1)){
+    if (ab.pressed(UP_BUTTON) && (gamestate == 1) && (locy > 1)){
     locy -= 1;
   }
 
   //move player down one space
-  if (ab.pressed(DOWN_BUTTON) && (gamestate == 0) && (locy < 44)){
+  if (ab.pressed(DOWN_BUTTON) && (gamestate == 1) && (locy < 44)){
     locy += 1;
   }
+if (gamestate == 0) {
+ // print  TITLE 
+  ab.setCursor((18), (0)); 
+  ab.print("Military Aviator");
+  // print DIRECTIONS
+  ab.setCursor((40), (10)); 
+  ab.print("A TO PLAY");
+    // print HOW TO PAUSE
+  ab.setCursor((45), (20)); 
+  ab.print("B to PAUSE");
+  // print or unpause
+  ab.setCursor((40), (30)); 
+  ab.print("A to UNPAUSE ");  
+// print VERSION
+  ab.setCursor((30), (40)); 
+  ab.print("VERSION 0.1 "); 
+// print "HIGH SCORE" , WICH IS REALY JUST KILL COUNT untill i figure out eeprom
+  ab.setCursor(14, 50); 
+  ab.print("HIGH SCORE "); 
+  // print kill count
+  ab.setCursor(100, 50); 
+  ab.print(killz); 
+  }
+ // if on title page and a button is pressed, play
+  if (ab.pressed(A_BUTTON) && (gamestate == 0)){
+    gamestate = 1;
+  }
+// if on PLAY page and B button is pressed, PAUSE
+  if (ab.pressed(B_BUTTON) && (gamestate == 1)){
+    gamestate = 2;
+  }
+  // if on PAUSE page and B button is pressed, play
+  if (ab.pressed(A_BUTTON) && (gamestate == 2)){
+    gamestate = 1;
+  }
+  if (gamestate == 1) {
  // print  hp 
   ab.setCursor((0), (55)); 
       ab.print("HP");
@@ -59,47 +97,70 @@ unsigned long cMillis = millis();  //current miliseconds
   ab.setCursor((20), (55)); 
       ab.print(hp);
 
-      ab.setCursor((50), (55)); 
+      ab.setCursor((40), (55)); 
       ab.print("EHP");
   // print the ehp
-  ab.setCursor((80), (55)); 
+  ab.setCursor((70), (55)); 
       ab.print(ehp);
-
+   ab.setCursor((80), (55)); 
+      ab.print("killz");
+  // print the ehp
+  ab.setCursor((105), (55)); 
+      ab.print(killz);
       ab.setCursor((locx ), (locy)); 
       ab.print("X");
 
+  }
+if (gamestate == 2) {
+ // print  pause 
+      ab.setCursor((30), (25)); 
+      ab.print("PAUSE");
+      ab.setCursor((20), (55)); 
+      ab.print("A to UNPAUSE");
+}
  
-
-  
-      // if enemy exists, make it be
-  if ((enemyex = 1) && (elocy < locy) && (cMillis - emove >= interval)) {
+     // if enemy is higher than player go forward and down
+  if ((gamestate == 1) && (enemyex == 1) && (elocy < locy) && (cMillis - emove >= interval)&& (elocx >= (locx + 20))) {
      elocx -= 1;
      elocy += 1;
     ab.setCursor((elocx), (elocy)); 
       ab.print("@");
-  }
-     // if enemy is higher than player go forward and down
-  if ((enemyex = 1) && (elocy > locy) && (cMillis - emove >= interval)&& (elocx <= (locx + 21))) {
+  }  
+       // if enemy is lower than player go forward and up
+  if ((gamestate == 1) && (enemyex == 1) && (elocy > locy) && (cMillis - emove >= interval)&& (elocx >= (locx + 20))) {
      elocx -= 1;
      elocy -= 1;
     ab.setCursor((elocx), (elocy)); 
       ab.print("@");
-  }  
+  } 
+
+  // if enemy exists show him 
+   if ( (gamestate == 1) && (enemyex == 1) ) {
+      ab.setCursor((elocx), (elocy)); 
+      ab.print("@");
+   }
+    // if enemy is behind player walk him off screen 
+   if ( (gamestate == 1) && (enemyex == 1) && (cMillis - emove >= interval)&& (elocx <= (locx + 15)) ) {
+      elocy += 1;
+      elocy += 1;
+      ab.setCursor((elocx), (elocy)); 
+      ab.print("@");
+   }
   // if enemy is at same height as player go forward and shoot
-   if ((enemyex = 1) && (elocy == locy) && (elocx >= locx + 20) && (cMillis - emove >= interval)) {
+   if ( (gamestate == 1) && (enemyex == 1) && (elocy == locy) && (elocx >= locx + 20) && (cMillis - emove >= interval)) {
       elocx -= 1;
     ab.setCursor((elocx), (elocy)); 
       ab.print("@");
   }
    // if enemy is at same height as player and within 20 px go up to avoid
-   if ((enemyex = 1) && (elocy == locy) && (elocx <= (locx + 20)) && (cMillis - emove >= interval)) {
+   if ((gamestate == 1) && (enemyex == 1) && (elocy == locy) && (elocx <= (locx + 20)) && (cMillis - emove >= interval)) {
      elocx -= 1;
      elocy -= 10;
     ab.setCursor((elocx), (elocy)); 
       ab.print("@");
   }
     // enemy shoot if within 80 px or player
-    if ((enemyex = 1 ) && (80 > (elocx-locx))&& (elocy-locy) && (ebulx == 0)) {
+    if ((gamestate == 1) && (enemyex == 1 ) && (80 > (elocx-locx))&& (elocy == locy) && (ebulx == 0)) {
     
     ab.setCursor((elocx - 5), (elocy)); 
       ab.print("-");
@@ -107,7 +168,7 @@ unsigned long cMillis = millis();  //current miliseconds
       ebuly = (elocy);
   }
     //if a bullet is not on the screen and player presses a shoot
-  if (ab.pressed(A_BUTTON) && (gamestate == 0) && (bulx == 0)){
+  if (ab.pressed(A_BUTTON) && (gamestate == 1) && (bulx == 0)){
       bulx = (locx + 10);
       buly = (locy);
     ab.setCursor((bulx), (buly)); 
@@ -129,7 +190,7 @@ unsigned long cMillis = millis();  //current miliseconds
     
   }
     // move the players bullet forward 1 px untill it falls off the screen if with a delay without a delay
-    while ((gamestate == 0) && (bulx <= 128) && (bulx > 0) && (cMillis - pbulm >= interval)){
+    while ((gamestate == 1) && (bulx <= 128) && (bulx > 0) && (cMillis - pbulm >= interval)){
       bulx += 1;
       pbulm = cMillis; //previous bullet move = current miliseconds
     ab.setCursor((bulx), (buly)); 
@@ -139,12 +200,12 @@ unsigned long cMillis = millis();  //current miliseconds
 
   //eeeeeee
     // if enemy bullet falls off the screen set it back to 0 
-  if (ebulx < 0) {
+  if ((ebulx < 0) && (gamestate == 1)) {
     ebulx = 0;
     ebuly = 0;
   }
        // move the enemy bullet backward 1 px untill it falls off the screen if with a delay without a delay
-    while ((gamestate == 0) && (ebulx > 0) && (cMillis - ebulm >= interval)){
+    while ((gamestate == 1) && (ebulx > 0) && (cMillis - ebulm >= interval)){
       ebulx -= 1;
       ebulm = cMillis; //previous bullet move = current miliseconds
     ab.setCursor((ebulx), (ebuly)); 
