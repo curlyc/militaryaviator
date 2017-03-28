@@ -28,6 +28,14 @@ int enemyex = 1; //enemy exists (0 no 1 yes)
 int ehp = 0; //enemy hit points 
 int ebulx = 0; // enemy bullet x coord
 int ebuly = 0; //enemy bulley y coord
+//
+int elocx2 = 100; //enemy location x
+int elocy2 = 30; // enemy location y
+int elocyt2 = 0; //8 - black space in bullet
+int enemyex2 = 1; //enemy exists (0 no 1 yes)
+int ehp2 = 0; //enemy hit points 
+int ebulx2 = 0; // enemy bullet x coord
+int ebuly2 = 0; //enemy bulley y coord
 int high = 0;
 unsigned long ebulm = 0; // when bulx changed last
 unsigned long pbulm = 0; // when bulx changed last
@@ -50,7 +58,7 @@ void loop() {
     ab.clear();
     locyt = (locy +7);
     elocyt = (elocy + 7);
-
+    elocyt2 = (elocy2 +7);
     // gs 1
     // move the player back one space
     if (ab.pressed(LEFT_BUTTON) && (gamestate == 1) && (locx > 1)){
@@ -81,16 +89,7 @@ if (gamestate == 0) {
   life = 3;
  // print  TITLE 
   ab.setCursor((13), (0)); 
-  ab.print("Military Aviator");
-  // print DIRECTIONS
-  ab.setCursor((30), (10)); 
-  ab.print("a to play");
-    // print HOW TO PAUSE
-  ab.setCursor((25), (20)); 
-  ab.print("B to PAUSE");
-  // print or unpause
-  ab.setCursor((20), (30)); 
-  ab.print("A to UNPAUSE ");  
+  ab.print("Military Aviator");  
 // print VERSION
   ab.setCursor((30), (40)); 
   ab.print("VERSION 0.1 "); 
@@ -101,9 +100,38 @@ if (gamestate == 0) {
   ab.setCursor(100, 50); 
   ab.print(high); 
   }
+if ((gamestate == 0) && (diff == 0)) {
+  ab.setCursor((30), (25)); 
+      ab.print("easy");
+      enemyex2 = 0;
+}
+if ((gamestate == 0) && (diff == 1)) {
+  ab.setCursor((30), (25)); 
+      ab.print("medium");
+      enemyex2 = 1;
+      
+}
+if ((gamestate == 0) && (diff == 2)) {
+  ab.setCursor((30), (25)); 
+      ab.print("hard");
+}
+  if (diff >= 3) {
+    diff = 0;
+  }
+  if (diff < 0) {
+    diff = 3;
+  }
+  // if on title page and a button is pressed, play
+  if (ab.pressed(RIGHT_BUTTON) && (gamestate == 0) && ab.everyXFrames(30)){
+   diff += 1;
+  }
+    // if on title page and a button is pressed, play
+  if (ab.pressed(LEFT_BUTTON) && (gamestate == 0) && ab.everyXFrames(30)){
+   diff -= 1;
+  }
  // if on title page and a button is pressed, play
-  if (ab.pressed(A_BUTTON) && (gamestate == 0)){
-    gamestate = 1;
+  if (ab.pressed(DOWN_BUTTON) && (gamestate == 0)){
+    gamestate += 1;
   }
 // if on PLAY page and B button is pressed, PAUSE
   if (ab.pressed(B_BUTTON) && (gamestate == 1)){
@@ -114,7 +142,7 @@ if (gamestate == 0) {
     gamestate = 1;
   }
    // if on PAUSE page and B button is pressed, play
-  if (ab.pressed(A_BUTTON) && (gamestate == 3)){
+  if (ab.pressed(B_BUTTON) && (gamestate == 3)){
     gamestate = 0;
   }
   
@@ -131,7 +159,7 @@ if (gamestate == 0) {
   // print the ehp
   ab.setCursor((60), (55)); 
       ab.print(killz);
-   ab.setCursor((90), (55)); 
+   ab.setCursor((80), (55)); 
       ab.print("life");
   // print the ehp
   ab.setCursor((110), (55)); 
@@ -139,16 +167,19 @@ if (gamestate == 0) {
 
 
 ab.setCursor((15), (45)); 
-      ab.print("yt");
+      ab.print("y2");
 ab.setCursor((35), (45)); 
-      ab.print(elocyt);
+      ab.print(elocy2);
    ab.setCursor((60), (45)); 
-      ab.print("ehp");
+      ab.print("x2");
   // print the ehp
   ab.setCursor((100), (45)); 
-      ab.print(ehp);
+      ab.print(elocx2);
       ab.drawBitmap(locx, locy, player, 16, 8, WHITE);
       ab.drawBitmap(elocx, elocy, enemy, 16, 8, WHITE);
+  }
+  if ((gamestate == 1) && (enemyex2 == 1)) {
+    ab.drawBitmap(elocx2, elocy2, enemy, 16, 8, WHITE);
   }
 if (gamestate == 2) {
  // print  pause 
@@ -200,6 +231,14 @@ if (gamestate == 3) {
     buly = 0;
   }
 
+ //if bullet is within a given range of enemy2 enemy hp = ehp2-1
+  if ((bulx >=1) && (bulx >= elocx2) && (buly >= (elocy2))&& (buly <= elocyt2) && (gamestate == 1)) {
+    ehp2 -= 1;
+    killz += 1;
+    tkillz +=1;
+    bulx = 0;
+    buly = 0;
+  }
  // move the players bullet forward 2 px untill it falls off the screen if with a delay without a delay
     if ((gamestate == 1) && (bulx <= 128) && (bulx > 0) && ab.everyXFrames(2)){
       bulx += 2;
@@ -218,7 +257,6 @@ if (gamestate == 3) {
     //if bullet is within a given range of enemy enemy hp = ehp-1
   if ((ebulx >=1) && (ebulx <= locx) && (ebuly >= (locy))&& (ebuly <= locyt) && (gamestate == 1)) {
     hp -= 1;
-    killz += 1;
     ebulx = 0;
     ebuly = 0;
   }
@@ -237,26 +275,49 @@ if (gamestate == 3) {
  if (ebulx <= (locx - 2)){
   ebulx = 0;
  }
+ //ebullet2
+ //ebullet2
+ // about ebullet
+    //if bullet is within a given range of enemy enemy hp = ehp-1
+  if ((ebulx2 >=1) && (ebulx2 <= locx) && (ebuly2 >= (locy))&& (ebuly2 <= locyt) && (gamestate == 1)) {
+    hp -= 1;
+    ebulx2 = 0;
+    ebuly2 = 0;
+  }
  
- 
-     // if enemy is higher than player go down
+   // move the enemy bullet forward 2 px untill it falls off the screen if with a delay without a delay
+    if ((gamestate == 1) && (ebulx2 > 0) && ab.everyXFrames(2)){
+      ebulx2 -= 2;
+    
+  }
+
+ if (ebulx2 > 0) {
+    ab.setCursor((ebulx2), (ebuly2)); 
+    ab.print("-");
+ }
+ //if ebullet is behind the enemy get rid of it
+ if (ebulx2 <= (locx - 2)){
+  ebulx2 = 0;
+ }
+     //enemy 1
+     // if enemy1 is higher than player go down
   if ((gamestate == 1) && (enemyex == 1) && (elocy < locy) && ab.everyXFrames(5)&& (elocx >= (locx + 8))) {
      elocx -= 1;
      elocy += 1;
     
   }  
-       // if enemy is lower than player go forward and up
+       // if enemy1 is lower than player go forward and up
   if ((gamestate == 1) && (enemyex == 1) && (elocy > locy) && ab.everyXFrames(3) && (elocx >= (locx + 8))) {
      elocx -= 1;
      elocy -= 1;
     
   } 
-    // if enemy is behind player walk him off screen 
+    // if enemy1 is behind player walk him off screen 
    if ((gamestate == 1) && (enemyex == 1) && ab.everyXFrames(3) && (elocx <= (locx))) {
       elocx -= 1;
       
    }
-  // if enemy is at same height as player go forward shoot
+  // if enemy1 is at same height as player go forward shoot
    if ((gamestate == 1) && (enemyex == 1) && (elocy == locy) && (elocx >= locx + 10) && (ebulx == 0) && ab.everyXFrames(3)) {
       //go forward
       elocx -= 1;
@@ -268,7 +329,7 @@ if (gamestate == 3) {
       
       
   }
-  // if enemy is at same height as player and more than 8 px from him
+  // if enemy 1is at same height as player and more than 8 px from him
    if ((gamestate == 1) && (enemyex == 1) && (elocy == locy) && (elocx >= locx + 10 ) && ab.everyXFrames(3)) {
       //go forward
       elocx -= 1;
@@ -293,7 +354,7 @@ if (gamestate == 3) {
 
   
 
-    // if enemy falls off the screen set it back  
+    // if enemy1 falls off the screen set it back  
   if (elocx < 0) {
     
     ebulx = 0;
@@ -318,7 +379,86 @@ if (gamestate == 3) {
     
   }
       
-   
+   // enemy 2
+   // enemy 2
+        // if enemy is higher than player go down
+  if ((gamestate == 1) && (enemyex2 == 1) && (elocy2 < locy) && ab.everyXFrames(5)&& (elocx2 >= (locx + 8))) {
+     elocx2 -= 1;
+     elocy2 += 1;
+    
+  }  
+       // if enemy is lower than player go forward and up
+  if ((gamestate == 1) && (enemyex2 == 1) && (elocy2 > locy) && ab.everyXFrames(3) && (elocx2 >= (locx + 8))) {
+     elocx2 -= 1;
+     elocy2 -= 1;
+    
+  } 
+    // if enemy is behind player walk him off screen 
+   if ((gamestate == 1) && (enemyex2 == 1) && ab.everyXFrames(3) && (elocx2 <= (locx))) {
+      elocx2 -= 1;
+      
+   }
+  // if enemy is at same height as player go forward shoot
+   if ((gamestate == 1) && (enemyex2 == 1) && (elocy2 == locy) && (elocx2 >= locx + 10) && (ebulx2 == 0) && ab.everyXFrames(3)) {
+      //go forward
+      elocx2 -= 1;
+      ebulx2 = (elocx2 - 10);
+      ebuly2 = elocy2;
+    
+      //shoot
+      
+      
+      
+  }
+  // if enemy is at same height as player and more than 8 px from him
+   if ((gamestate == 1) && (enemyex2 == 1) && (elocy2 == locy) && (elocx2 >= locx + 10 ) && ab.everyXFrames(3)) {
+      //go forward
+      elocx2 -= 1;
+
+  }
+    
+   // if enemy is  within 18 px  x of player go up & locy = elocy
+   if ((gamestate == 1) && (enemyex2 == 1) && (elocx2 <= (locx + 8)) && (elocy2 +20 <= locy) && (elocy2 - 20 >= locy) && ab.everyXFrames(3)) {
+     
+     elocy2 -= 10;
+     elocx2 +=10;
+  }
+    
+    if ((ehp2 <= 0) && (enemyex2 == 1)) {
+    
+    ebulx2 = 0;
+    ebulx2 = 0;
+    elocx2 = (random(128, 138));
+    elocy2 = (random(0, 30));
+    ehp2 = 1;
+  }
+
+  
+
+    // if enemy falls off the screen set it back  
+  if ((elocx2 < 0) && (enemyex2 == 1)) {
+    
+    ebulx2 = 0;
+    ebulx2 = 0;
+    elocx2 = (random(128, 138));
+    elocy2 = (random(0, 30));
+    
+  }
+
+    if ((elocy2 < 0) && (enemyex2 == 1)) {
+    elocx2 = (random(128, 138));
+    ebulx2 = 0;
+    ebulx2 = 0;
+    elocy2 = (random(0, 30));
+    
+  }
+    if ((elocy2 > 55) && (enemyex2 == 1)) {
+    elocx2 = (random(128, 138));
+    ebulx2 = 0;
+    ebulx2 = 0;
+    elocy2 = (random(0, 30));
+    
+  }
  
 ab.display();
 }
