@@ -11,3 +11,6 @@ easy, 1 enemy medium 2 enemies
 press down to start game
 
 every 100 kills gets you an extra life
+
+
+b pauses game
